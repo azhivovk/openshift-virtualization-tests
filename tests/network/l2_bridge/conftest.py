@@ -7,9 +7,8 @@ import pytest
 from pyhelper_utils.shell import run_ssh_commands
 
 from tests.network.constants import DHCP_IP_RANGE_END, DHCP_IP_RANGE_START
+from tests.network.libs.dhcpd import DHCP_SERVER_CONF_FILE, DHCP_SERVICE_RESTART, verify_dhcpd_activated
 from tests.network.utils import (
-    DHCP_SERVER_CONF_FILE,
-    DHCP_SERVICE_RESTART,
     update_cloud_init_extra_user_data,
 )
 from utilities.infra import get_node_selector_dict, name_prefix
@@ -18,7 +17,6 @@ from utilities.network import (
     get_vmi_mac_address_by_iface_name,
     network_device,
     network_nad,
-    verify_dhcpd_activated,
 )
 from utilities.virt import (
     VirtualMachineForTests,
