@@ -1,12 +1,15 @@
 import shlex
 
 from pyhelper_utils.shell import run_ssh_commands
-from timeout_sampler import TimeoutSampler, TimeoutExpiredError
+from timeout_sampler import TimeoutExpiredError, TimeoutSampler
 
-from utilities.constants import TIMEOUT_30SEC, TIMEOUT_5SEC
+from utilities.constants import TIMEOUT_5SEC, TIMEOUT_30SEC
 from utilities.network import LOGGER
 from utilities.virt import VirtualMachineForTests
 
+DHCP_IP_RANGE_START = "10.200.3.3"
+DHCP_IP_RANGE_END = "10.200.3.10"
+DHCP_IP_SUBNET = "10.200.3"
 DHCP_SERVICE_RESTART = "sudo systemctl restart dhcpd"
 DHCP_SERVER_CONF_FILE = """
 cat <<EOF >> /etc/dhcp/dhcpd.conf
