@@ -7,9 +7,9 @@ from utilities.constants import TIMEOUT_5SEC, TIMEOUT_30SEC
 from utilities.network import LOGGER
 from utilities.virt import VirtualMachineForTests
 
-DHCP_IP_RANGE_START = "10.200.3.3"
-DHCP_IP_RANGE_END = "10.200.3.10"
 DHCP_IP_SUBNET = "10.200.3"
+DHCP_IP_RANGE_START = f"{DHCP_IP_SUBNET}.3"
+DHCP_IP_RANGE_END = f"{DHCP_IP_SUBNET}.10"
 DHCP_SERVICE_RESTART = "sudo systemctl restart dhcpd"
 DHCP_SERVER_CONF_FILE = """
 cat <<EOF >> /etc/dhcp/dhcpd.conf
