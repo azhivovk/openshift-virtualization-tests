@@ -38,7 +38,7 @@ from tests.network.utils import (
 )
 from utilities.constants import PORT_80, TIMEOUT_4MIN, TIMEOUT_10SEC
 from utilities.infra import add_scc_to_service_account, create_ns, label_project, unique_name
-from utilities.virt import vm_console_run_commands, wait_for_console
+from utilities.virt import vm_console_run_commands
 
 LOGGER = logging.getLogger(__name__)
 
@@ -259,15 +259,6 @@ def outside_mesh_vm_fedora_with_service_mesh_annotation(
         vm.start(wait=True)
         vm.wait_for_agent_connected()
         yield vm
-
-
-@pytest.fixture(scope="module")
-def outside_mesh_console_ready_vm(
-    outside_mesh_vm_fedora_with_service_mesh_annotation,
-):
-    wait_for_console(
-        vm=outside_mesh_vm_fedora_with_service_mesh_annotation,
-    )
 
 
 @pytest.fixture(scope="class")
