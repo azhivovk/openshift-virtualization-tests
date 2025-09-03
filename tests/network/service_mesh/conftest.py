@@ -342,7 +342,7 @@ def traffic_management_service_mesh_convergence(
     gateway_service_mesh,
     destination_rule_service_mesh,
     virtual_service_mesh_service,
-    service_mesh_ingress_service_addr
+    service_mesh_ingress_service_addr,
 ):
     wait_service_mesh_components_convergence(
         func=traffic_management_request,
