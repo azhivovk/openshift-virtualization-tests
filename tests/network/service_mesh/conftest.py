@@ -262,13 +262,6 @@ def outside_mesh_vm_fedora_with_service_mesh_annotation(
 
 
 @pytest.fixture(scope="module")
-def service_mesh_vm_console_connection_ready(vm_fedora_with_service_mesh_annotation):
-    wait_for_console(
-        vm=vm_fedora_with_service_mesh_annotation,
-    )
-
-
-@pytest.fixture(scope="module")
 def outside_mesh_console_ready_vm(
     outside_mesh_vm_fedora_with_service_mesh_annotation,
 ):
@@ -358,8 +351,7 @@ def traffic_management_service_mesh_convergence(
     gateway_service_mesh,
     destination_rule_service_mesh,
     virtual_service_mesh_service,
-    service_mesh_ingress_service_addr,
-    service_mesh_vm_console_connection_ready,
+    service_mesh_ingress_service_addr
 ):
     wait_service_mesh_components_convergence(
         func=traffic_management_request,
@@ -429,7 +421,6 @@ def peer_authentication_service_mesh_deployment(
     vm_fedora_with_service_mesh_annotation,
     ns_outside_of_service_mesh,
     httpbin_service_service_mesh,
-    service_mesh_vm_console_connection_ready,
 ):
     wait_service_mesh_components_convergence(
         func=run_console_command,
