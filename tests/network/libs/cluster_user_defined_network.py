@@ -47,6 +47,7 @@ class Network:
 
     topology: str
     localnet: Localnet
+    mtu: int | None = None
 
 
 class ClusterUserDefinedNetwork(Cudn):
