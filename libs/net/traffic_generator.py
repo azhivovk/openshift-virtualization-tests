@@ -59,6 +59,7 @@ class Client:
         vm (BaseVirtualMachine): The virtual machine where the client runs.
         server_ip (str): The destination IP address of the server the client connects to.
         server_port (int): The port on which the server listens for connections.
+        jumbo_frame_param (str): Optional jumbo frame command.
     """
 
     def __init__(
@@ -66,11 +67,12 @@ class Client:
         vm: BaseVirtualMachine,
         server_ip: str,
         server_port: int,
+        jumbo_frame_param: str = ""
     ):
         self._vm = vm
         self._server_ip = server_ip
         self._server_port = server_port
-        self._cmd = f"{_IPERF_BIN} --client {self._server_ip} --time 0 --port {self._server_port}"
+        self._cmd = f"{_IPERF_BIN} --client {self._server_ip} --time 0 --port {self._server_port}{jumbo_frame_param}"
 
     def __enter__(self) -> "Client":
         self._vm.console(
