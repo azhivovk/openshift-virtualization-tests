@@ -62,6 +62,7 @@ class Network:
     topology: str
     layer2: Layer2 | None = None
     localnet: Localnet | None = None
+    mtu: int | None = None
 
 
 class ClusterUserDefinedNetwork(Cudn):
