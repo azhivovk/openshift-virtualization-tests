@@ -62,13 +62,7 @@ class Client:
         jumbo_frame_param (str): Optional jumbo frame command.
     """
 
-    def __init__(
-        self,
-        vm: BaseVirtualMachine,
-        server_ip: str,
-        server_port: int,
-        jumbo_frame_param: str = ""
-    ):
+    def __init__(self, vm: BaseVirtualMachine, server_ip: str, server_port: int, jumbo_frame_param: str = ""):
         self._vm = vm
         self._server_ip = server_ip
         self._server_port = server_port
