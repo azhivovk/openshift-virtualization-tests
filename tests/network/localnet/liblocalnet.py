@@ -5,7 +5,6 @@ from typing import Generator
 
 from kubernetes.client import ApiException
 from kubernetes.dynamic import DynamicClient
-
 from ocp_resources.node import Node
 
 from libs.net.traffic_generator import TcpServer
