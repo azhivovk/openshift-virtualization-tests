@@ -16,6 +16,7 @@ from tests.network.localnet.liblocalnet import (
     LOCALNET_OVS_BRIDGE_NETWORK,
     LOCALNET_TEST_LABEL,
     client_server_active_connection,
+    create_jumbo_frame_traffic_client,
     create_nncp_localnet_on_secondary_node_nic,
     create_traffic_client,
     create_traffic_server,
@@ -287,3 +288,87 @@ def nncp_localnet_on_secondary_node_nic_config_mtu(
     yield from create_nncp_localnet_on_secondary_node_nic(
         worker_node=worker_node1, nodes_available_nics=nodes_available_nics, mtu=cluster_hardware_mtu
     )
+
+
+@pytest.fixture(scope="module")
+def vm1_ovs_bridge_localnet_jumbo_frame(
+    namespace_localnet_1: Namespace,
+    ipv4_localnet_address_pool: Generator[str],
+    cudn_localnet_ovs_bridge_jumbo_frame: libcudn.ClusterUserDefinedNetwork,
+) -> Generator[BaseVirtualMachine]:
+    with localnet_vm(
+        namespace=namespace_localnet_1.name,
+        name="localnet-ovs-vm1-jumbo",
+        physical_network_name=cudn_localnet_ovs_bridge_jumbo_frame.name,
+        spec_logical_network=LOCALNET_OVS_BRIDGE_NETWORK,
+        cidr=next(ipv4_localnet_address_pool),
+    ) as vm:
+        yield vm
+
+
+@pytest.fixture(scope="module")
+def vm2_ovs_bridge_localnet_jumbo_frame(
+    namespace_localnet_1: Namespace,
+    ipv4_localnet_address_pool: Generator[str],
+    cudn_localnet_ovs_bridge_jumbo_frame: libcudn.ClusterUserDefinedNetwork,
+) -> Generator[BaseVirtualMachine]:
+    with localnet_vm(
+        namespace=namespace_localnet_1.name,
+        name="localnet-ovs-vm2-jumbo",
+        physical_network_name=cudn_localnet_ovs_bridge_jumbo_frame.name,
+        spec_logical_network=LOCALNET_OVS_BRIDGE_NETWORK,
+        cidr=next(ipv4_localnet_address_pool),
+    ) as vm:
+        yield vm
+
+
+@pytest.fixture(scope="module")
+def ovs_bridge_localnet_running_jumbo_frame_vms(
+    vm1_ovs_bridge_localnet_jumbo_frame: BaseVirtualMachine, vm2_ovs_bridge_localnet_jumbo_frame: BaseVirtualMachine
+) -> Generator[tuple[BaseVirtualMachine, BaseVirtualMachine]]:
+    vm1, vm2 = run_vms(vms=(vm1_ovs_bridge_localnet_jumbo_frame, vm2_ovs_bridge_localnet_jumbo_frame))
+    yield vm1, vm2
+
+
+@pytest.fixture()
+def localnet_ovs_bridge_jumbo_frame_server(
+    ovs_bridge_localnet_running_jumbo_frame_vms: tuple[BaseVirtualMachine, BaseVirtualMachine],
+) -> Generator[Server]:
+    with create_traffic_server(vm=ovs_bridge_localnet_running_jumbo_frame_vms[0]) as server:
+        assert server.is_running()
+        yield server
+
+
+@pytest.fixture()
+def localnet_ovs_bridge_jumbo_frame_client(
+    ovs_bridge_localnet_running_jumbo_frame_vms: tuple[BaseVirtualMachine, BaseVirtualMachine],
+    cluster_hardware_mtu: int,
+) -> Generator[Client]:
+    ip_header = 20
+    tcp_header = 20
+
+    with create_jumbo_frame_traffic_client(
+        server_vm=ovs_bridge_localnet_running_jumbo_frame_vms[0],
+        client_vm=ovs_bridge_localnet_running_jumbo_frame_vms[1],
+        spec_logical_network=LOCALNET_OVS_BRIDGE_NETWORK,
+        maximum_segment_size=cluster_hardware_mtu - ip_header - tcp_header,
+    ) as client:
+        assert client.is_running()
+        yield client
+
+
+@pytest.fixture(scope="module")
+def cudn_localnet_ovs_bridge_jumbo_frame(
+    vlan_id: int,
+    cluster_hardware_mtu: int,
+    namespace_localnet_1: Namespace,
+) -> Generator[libcudn.ClusterUserDefinedNetwork]:
+    with localnet_cudn(
+        name=LOCALNET_OVS_BRIDGE_NETWORK,
+        match_labels=LOCALNET_TEST_LABEL,
+        vlan_id=vlan_id,
+        physical_network_name=LOCALNET_OVS_BRIDGE_NETWORK,
+        mtu=cluster_hardware_mtu,
+    ) as cudn:
+        cudn.wait_for_status_success()
+        yield cudn
