@@ -16,7 +16,6 @@ from tests.network.localnet.liblocalnet import (
     LOCALNET_OVS_BRIDGE_NETWORK,
     LOCALNET_TEST_LABEL,
     client_server_active_connection,
-    create_jumbo_frame_traffic_client,
     create_nncp_localnet_on_secondary_node_nic,
     create_traffic_client,
     create_traffic_server,
@@ -347,7 +346,7 @@ def localnet_ovs_bridge_jumbo_frame_client(
     ip_header = 20
     tcp_header = 20
 
-    with create_jumbo_frame_traffic_client(
+    with create_traffic_client(
         server_vm=ovs_bridge_localnet_running_jumbo_frame_vms[0],
         client_vm=ovs_bridge_localnet_running_jumbo_frame_vms[1],
         spec_logical_network=LOCALNET_OVS_BRIDGE_NETWORK,

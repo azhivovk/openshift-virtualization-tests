@@ -38,17 +38,10 @@ def create_traffic_server(vm: BaseVirtualMachine) -> Server:
 
 
 def create_traffic_client(
-    server_vm: BaseVirtualMachine, client_vm: BaseVirtualMachine, spec_logical_network: str
-) -> Client:
-    return Client(
-        vm=client_vm,
-        server_ip=lookup_iface_status(vm=server_vm, iface_name=spec_logical_network)[IP_ADDRESS],
-        server_port=_IPERF_SERVER_PORT,
-    )
-
-
-def create_jumbo_frame_traffic_client(
-    server_vm: BaseVirtualMachine, client_vm: BaseVirtualMachine, spec_logical_network: str, maximum_segment_size: int
+    server_vm: BaseVirtualMachine,
+    client_vm: BaseVirtualMachine,
+    spec_logical_network: str,
+    maximum_segment_size: int | None = None,
 ) -> Client:
     """
     Maximum Segment Size = MTU - network headers (ip,tcp) size in bytes
@@ -57,7 +50,7 @@ def create_jumbo_frame_traffic_client(
         vm=client_vm,
         server_ip=lookup_iface_status(vm=server_vm, iface_name=spec_logical_network)[IP_ADDRESS],
         server_port=_IPERF_SERVER_PORT,
-        jumbo_frame_param=f" --set-mss {maximum_segment_size}",
+        jumbo_frame_param=f" --set-mss {maximum_segment_size}" if maximum_segment_size else "",
     )
 
 
