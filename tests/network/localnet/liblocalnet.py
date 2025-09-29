@@ -136,9 +136,13 @@ def localnet_cudn(
     ipam = libcudn.Ipam(mode=libcudn.Ipam.Mode.DISABLED.value)
     vlan = libcudn.Vlan(mode=libcudn.Vlan.Mode.ACCESS.value, access=libcudn.Access(id=vlan_id))
     localnet = libcudn.Localnet(
-        role=libcudn.Localnet.Role.SECONDARY.value, physicalNetworkName=physical_network_name, vlan=vlan, ipam=ipam
+        role=libcudn.Localnet.Role.SECONDARY.value,
+        physicalNetworkName=physical_network_name,
+        vlan=vlan,
+        ipam=ipam,
+        mtu=mtu,
     )
-    network = libcudn.Network(topology=libcudn.Network.Topology.LOCALNET.value, localnet=localnet, mtu=mtu)
+    network = libcudn.Network(topology=libcudn.Network.Topology.LOCALNET.value, localnet=localnet)
 
     return libcudn.ClusterUserDefinedNetwork(
         name=name, namespace_selector=LabelSelector(matchLabels=match_labels), network=network

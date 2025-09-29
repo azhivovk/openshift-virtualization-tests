@@ -51,6 +51,7 @@ class Localnet:
     physicalNetworkName: str  # noqa: N815
     vlan: Vlan
     ipam: Ipam
+    mtu: int | None = None
 
 
 @dataclass
@@ -62,7 +63,6 @@ class Network:
     topology: str
     layer2: Layer2 | None = None
     localnet: Localnet | None = None
-    mtu: int | None = None
 
 
 class ClusterUserDefinedNetwork(Cudn):
