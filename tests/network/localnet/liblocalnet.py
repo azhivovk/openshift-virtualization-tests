@@ -22,6 +22,9 @@ LINK_STATE_UP = "up"
 LINK_STATE_DOWN = "down"
 NNCP_INTERFACE_TYPE_OVS_BRIDGE = "ovs-bridge"
 _IPERF_SERVER_PORT = 5201
+ICMP_HEADER = 8
+TCP_HEADER = 20
+IP_HEADER = 20
 
 
 def run_vms(vms: tuple[BaseVirtualMachine, ...]) -> tuple[BaseVirtualMachine, ...]:

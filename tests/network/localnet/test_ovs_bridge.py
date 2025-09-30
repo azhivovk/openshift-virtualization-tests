@@ -3,6 +3,8 @@ import pytest
 from libs.net.traffic_generator import is_tcp_connection
 from libs.net.vmspec import lookup_iface_status
 from tests.network.localnet.liblocalnet import (
+    ICMP_HEADER,
+    IP_HEADER,
     LINK_STATE_UP,
     LOCALNET_OVS_BRIDGE_NETWORK,
     client_server_active_connection,
@@ -56,9 +58,7 @@ def test_tcp_connectivity_ovs_bridge_jumbo_frames_no_fragmentation(
     localnet_ovs_bridge_jumbo_frame_client,
     cluster_hardware_mtu,
 ):
-    icmp_header = 8
-    ip_header = 20
-    ping_packet_size = cluster_hardware_mtu - icmp_header - ip_header
+    ping_packet_size = cluster_hardware_mtu - ICMP_HEADER - IP_HEADER
     vm1, vm2 = ovs_bridge_localnet_running_jumbo_frame_vms
     dst_ip = get_vmi_ip_v4_by_name(vm=vm2, name=cudn_localnet_ovs_bridge_jumbo_frame.name)
     ping_cmd_jumbo_frame_no_fragmentation = f"ping -q -c 3 {dst_ip} -s {ping_packet_size} -M do"

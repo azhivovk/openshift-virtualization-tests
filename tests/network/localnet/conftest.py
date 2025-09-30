@@ -11,10 +11,12 @@ from libs.net.vmspec import lookup_iface_status
 from libs.vm.vm import BaseVirtualMachine
 from tests.network.libs import cluster_user_defined_network as libcudn
 from tests.network.localnet.liblocalnet import (
+    IP_HEADER,
     LINK_STATE_DOWN,
     LOCALNET_BR_EX_NETWORK,
     LOCALNET_OVS_BRIDGE_NETWORK,
     LOCALNET_TEST_LABEL,
+    TCP_HEADER,
     client_server_active_connection,
     create_nncp_localnet_on_secondary_node_nic,
     create_traffic_client,
@@ -345,14 +347,11 @@ def localnet_ovs_bridge_jumbo_frame_client(
     ovs_bridge_localnet_running_jumbo_frame_vms: tuple[BaseVirtualMachine, BaseVirtualMachine],
     cluster_hardware_mtu: int,
 ) -> Generator[Client]:
-    ip_header = 20
-    tcp_header = 20
-
     with create_traffic_client(
         server_vm=ovs_bridge_localnet_running_jumbo_frame_vms[0],
         client_vm=ovs_bridge_localnet_running_jumbo_frame_vms[1],
         spec_logical_network=LOCALNET_OVS_BRIDGE_NETWORK,
-        maximum_segment_size=cluster_hardware_mtu - ip_header - tcp_header,
+        maximum_segment_size=cluster_hardware_mtu - IP_HEADER - TCP_HEADER,
     ) as client:
         assert client.is_running()
         yield client
