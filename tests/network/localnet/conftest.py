@@ -275,18 +275,20 @@ def migrated_localnet_vm(localnet_running_vms: tuple[BaseVirtualMachine, BaseVir
 def nncp_localnet_on_secondary_node_nic(
     worker_node1: Node, nodes_available_nics: dict[str, list[str]]
 ) -> Generator[libnncp.NodeNetworkConfigurationPolicy]:
-    yield from create_nncp_localnet_on_secondary_node_nic(
+    with create_nncp_localnet_on_secondary_node_nic(
         worker_node=worker_node1, nodes_available_nics=nodes_available_nics
-    )
+    ) as nncp:
+        yield nncp
 
 
 @pytest.fixture(scope="module")
 def nncp_localnet_on_secondary_node_nic_config_mtu(
     worker_node1: Node, nodes_available_nics: dict[str, list[str]], cluster_hardware_mtu: int
 ) -> Generator[libnncp.NodeNetworkConfigurationPolicy]:
-    yield from create_nncp_localnet_on_secondary_node_nic(
+    with create_nncp_localnet_on_secondary_node_nic(
         worker_node=worker_node1, nodes_available_nics=nodes_available_nics, mtu=cluster_hardware_mtu
-    )
+    ) as nncp:
+        yield nncp
 
 
 @pytest.fixture(scope="module")

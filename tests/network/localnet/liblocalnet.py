@@ -177,6 +177,7 @@ def client_server_active_connection(
             yield client, server
 
 
+@contextlib.contextmanager
 def create_nncp_localnet_on_secondary_node_nic(
     worker_node: Node, nodes_available_nics: dict[str, list[str]], mtu: int | None = None
 ) -> Generator[libnncp.NodeNetworkConfigurationPolicy, None, None]:
