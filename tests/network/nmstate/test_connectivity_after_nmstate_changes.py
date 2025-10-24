@@ -89,13 +89,14 @@ def nmstate_linux_bridge_attached_vma(
     namespace,
     unprivileged_client,
     nmstate_linux_nad,
+    random_octet_ipv4_address,
 ):
     name = "vma"
     networks = OrderedDict()
     networks[nmstate_linux_nad.name] = nmstate_linux_nad.name
     network_data_data = {
         "ethernets": {
-            "eth1": {"addresses": [f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.0.1/24"]},
+            "eth1": {"addresses": [f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.{random_octet_ipv4_address[0]}.1/24"]},
         }
     }
 
@@ -123,13 +124,14 @@ def nmstate_linux_bridge_attached_vmb(
     namespace,
     unprivileged_client,
     nmstate_linux_nad,
+    random_octet_ipv4_address,
 ):
     name = "vmb"
     networks = OrderedDict()
     networks[nmstate_linux_nad.name] = nmstate_linux_nad.name
     network_data_data = {
         "ethernets": {
-            "eth1": {"addresses": [f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.0.2/24"]},
+            "eth1": {"addresses": [f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.{random_octet_ipv4_address[0]}.2/24"]},
         }
     }
 

@@ -11,12 +11,12 @@ from . import utils as kmp_utils
 class TestKMPConnectivity:
     #: KMPTestConnectivity setup
     # prefix change: IPV4_ADDRESS_SUBNET_PREFIX_VMI
-    # .........                                                                    ..........
-    # |       |---eth0:           : POD network                :auto:       eth0---|        |
-    # |       |---eth1:172.16.1.1: Manual MAC          from pool:172.16.1.2:eth1---|        |
-    # | VM-A  |---eth2:172.16.2.1: Automatic MAC       from pool:172.16.2.2:eth2---|  VM-B  |
-    # |       |---eth3:172.16.3.1: Manual MAC not      from pool:172.16.3.2:eth3---|        |
-    # |.......|---eth4:172.16.4.1: Automatic mac tuning network :172.16.4.2:eth4---|........|
+    # .........                                                                              ..........
+    # |       |---eth0:               : POD network                  :auto:           eth0---|        |
+    # |       |---eth1:172.16.random.1: Manual MAC          from pool:172.16.random.2:eth1---|        |
+    # | VM-A  |---eth2:172.16.random.1: Automatic MAC       from pool:172.16.random.2:eth2---|  VM-B  |
+    # |       |---eth3:172.16.random.1: Manual MAC not      from pool:172.16.random.2:eth3---|        |
+    # |.......|---eth4:172.16.random.1: Automatic mac tuning network :172.16.random.2:eth4---|........|
     @pytest.mark.post_upgrade
     @pytest.mark.polarion("CNV-2154")
     def test_manual_mac_from_pool(self, namespace, running_vm_a, running_vm_b):

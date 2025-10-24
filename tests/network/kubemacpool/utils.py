@@ -15,7 +15,7 @@ KMP_PODS_LABEL = "control-plane=mac-controller-manager"
 IfaceTuple = namedtuple("IfaceTuple", ["ip_address", "mac_address", "name"])
 
 
-def vm_network_config(mac_pool, all_nads, end_ip_octet, mac_uid):
+def vm_network_config(mac_pool, all_nads, end_ip_octet, mac_uid, random_octet_ipv4_address):
     """
     Args:
         end_ip_octet(int): int in range [1,254]
@@ -27,20 +27,24 @@ def vm_network_config(mac_pool, all_nads, end_ip_octet, mac_uid):
     """
     return {
         "eth1": IfaceTuple(
-            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.1.{end_ip_octet}",
+            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.{random_octet_ipv4_address[0]}.{end_ip_octet}",
             mac_address=mac_pool.get_mac_from_pool(),
             name=all_nads[0],
         ),
         "eth2": IfaceTuple(
-            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.2.{end_ip_octet}", mac_address="auto", name=all_nads[1]
+            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.{random_octet_ipv4_address[1]}.{end_ip_octet}",
+            mac_address="auto",
+            name=all_nads[1],
         ),
         "eth3": IfaceTuple(
-            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.3.{end_ip_octet}",
+            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.{random_octet_ipv4_address[2]}.{end_ip_octet}",
             mac_address=f"02:0{mac_uid}:00:00:00:00",
             name=all_nads[2],
         ),
         "eth4": IfaceTuple(
-            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.4.{end_ip_octet}", mac_address="auto", name=all_nads[3]
+            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX_VMI}.{random_octet_ipv4_address[3]}.{end_ip_octet}",
+            mac_address="auto",
+            name=all_nads[3],
         ),
     }
 
