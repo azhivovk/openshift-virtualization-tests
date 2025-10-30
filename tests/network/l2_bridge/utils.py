@@ -7,6 +7,7 @@ from ocp_resources.resource import ResourceEditor
 from ocp_resources.virtual_machine_instance import VirtualMachineInstance
 from timeout_sampler import TimeoutExpiredError, TimeoutSampler
 
+from tests.network.libs.ip import random_ipv4_address
 from tests.network.utils import update_cloud_init_extra_user_data
 from utilities import console
 from utilities.constants import (
@@ -74,7 +75,6 @@ def create_vm_with_secondary_interface_on_setup(
     client,
     bridge_nad,
     vm_name,
-    ipv4_address_subnet_prefix,
     ipv4_address_suffix,
 ):
     networks = {bridge_nad.name: bridge_nad.name}
@@ -83,7 +83,9 @@ def create_vm_with_secondary_interface_on_setup(
             "ethernets": {
                 "eth1": {
                     "addresses": [
-                        f"{ipv4_address_subnet_prefix}.{ipv4_address_suffix}/{IPV4_ADDRESS_SUBNET_PREFIX_LENGTH}"
+                        f"{random_ipv4_address(net_seed=0, host_address=ipv4_address_suffix)}/{
+                            IPV4_ADDRESS_SUBNET_PREFIX_LENGTH
+                        }"
                     ]
                 }
             }

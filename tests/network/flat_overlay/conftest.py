@@ -7,7 +7,6 @@ from ocp_resources.multi_network_policy import MultiNetworkPolicy
 from ocp_resources.network_config_openshift_io import Network
 from ocp_resources.resource import ResourceEditor
 
-from tests.network.constants import IPV4_ADDRESS_SUBNET_PREFIX
 from tests.network.flat_overlay.constants import (
     CONNECTION_REQUESTS,
     HTTP_SUCCESS_RESPONSE_STR,
@@ -23,6 +22,7 @@ from tests.network.flat_overlay.utils import (
     start_nc_response_on_vm,
     wait_for_multi_network_policy_resources,
 )
+from tests.network.libs.ip import random_ipv4_address
 from utilities.constants import CLUSTER, FLAT_OVERLAY_STR
 from utilities.infra import create_ns
 from utilities.network import assert_ping_successful, get_vmi_ip_v4_by_name, network_nad
@@ -323,7 +323,7 @@ def vmb_ingress_multi_network_policy(
         network_name=flat_overlay_vma_vmb_nad.name,
         policy_types=["Ingress"],
         ingress=create_ip_block(
-            ip_address=f"{IPV4_ADDRESS_SUBNET_PREFIX}.123/{SPECIFIC_HOST_MASK}",
+            ip_address=f"{random_ipv4_address(net_seed=0, host_address=123)}/{SPECIFIC_HOST_MASK}",
         ),
     ) as mnp:
         yield mnp

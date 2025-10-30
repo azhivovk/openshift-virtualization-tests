@@ -4,7 +4,6 @@ import pytest
 from ocp_resources.virtual_machine_instance import VirtualMachineInstance
 
 from libs.net import netattachdef
-from tests.network.constants import IPV4_ADDRESS_SUBNET_PREFIX
 from tests.network.l2_bridge.utils import (
     check_mac_released,
     create_bridge_interface_for_hot_plug,
@@ -20,6 +19,7 @@ from tests.network.l2_bridge.utils import (
     set_secondary_static_ip_address,
     wait_for_interface_hot_plug_completion,
 )
+from tests.network.libs.ip import random_ipv4_address
 from utilities.constants import FLAT_OVERLAY_STR, SRIOV
 from utilities.network import (
     IfaceNotFound,
@@ -119,7 +119,6 @@ def running_utility_vm_for_connectivity_check(
         client=unprivileged_client,
         bridge_nad=network_attachment_definition_for_hot_plug,
         vm_name=f"utility-{HOT_PLUG_STR}-vm",
-        ipv4_address_subnet_prefix=IPV4_ADDRESS_SUBNET_PREFIX,
         ipv4_address_suffix=next(index_number),
     )
 
@@ -128,7 +127,7 @@ def running_utility_vm_for_connectivity_check(
 def hot_plugged_interface_with_address(running_vm_for_nic_hot_plug, index_number, hot_plugged_interface_name):
     set_secondary_static_ip_address(
         vm=running_vm_for_nic_hot_plug,
-        ipv4_address=f"{IPV4_ADDRESS_SUBNET_PREFIX}.{next(index_number)}",
+        ipv4_address=random_ipv4_address(net_seed=0, host_address=next(index_number)),
         vmi_interface=hot_plugged_interface_name,
     )
 
@@ -145,7 +144,6 @@ def running_vm_with_secondary_and_hot_plugged_interfaces(
         client=unprivileged_client,
         bridge_nad=network_attachment_definition_for_hot_plug,
         vm_name=f"vm-with-sec-and-{HOT_PLUG_STR}-interfaces",
-        ipv4_address_subnet_prefix=IPV4_ADDRESS_SUBNET_PREFIX,
         ipv4_address_suffix=next(index_number),
     )
 
@@ -176,7 +174,7 @@ def hot_plugged_second_interface_with_address(
 ):
     set_secondary_static_ip_address(
         vm=running_vm_with_secondary_and_hot_plugged_interfaces,
-        ipv4_address=f"{IPV4_ADDRESS_SUBNET_PREFIX}.{next(index_number)}",
+        ipv4_address=random_ipv4_address(net_seed=0, host_address=next(index_number)),
         vmi_interface=hot_plugged_interface_name_on_vm_created_with_secondary_interface,
     )
 
@@ -244,7 +242,7 @@ def hot_plugged_jumbo_interface_with_address(
         vm=running_vm_for_jumbo_nic_hot_plug,
         hot_plugged_interface_name=hot_plugged_interface_name,
         net_attach_def_name=network_attachment_definition_for_jumbo_hot_plug.name,
-        ipv4_address=f"{IPV4_ADDRESS_SUBNET_PREFIX}.{next(index_number)}",
+        ipv4_address=random_ipv4_address(net_seed=0, host_address=next(index_number)),
     )
 
     return hot_plugged_interface_name
@@ -262,7 +260,7 @@ def hot_plugged_jumbo_interface_in_utility_vm(
         vm=running_utility_vm_for_connectivity_check,
         hot_plugged_interface_name=hot_plugged_interface_name,
         net_attach_def_name=network_attachment_definition_for_jumbo_hot_plug.name,
-        ipv4_address=f"{IPV4_ADDRESS_SUBNET_PREFIX}.{next(index_number)}",
+        ipv4_address=random_ipv4_address(net_seed=0, host_address=next(index_number)),
     )
 
     yield hot_plugged_interface_name
@@ -439,7 +437,7 @@ def vm1_with_hot_plugged_sriov_interface(
         namespace_name=namespace.name,
         vm_name=f"{SRIOV}-{HOT_PLUG_STR}-vm1",
         sriov_network_for_hot_plug=sriov_network_for_hot_plug,
-        ipv4_address=f"{IPV4_ADDRESS_SUBNET_PREFIX}.{next(index_number)}",
+        ipv4_address=random_ipv4_address(net_seed=0, host_address=next(index_number)),
         client=unprivileged_client,
     )
 
@@ -455,7 +453,7 @@ def vm2_with_hot_plugged_sriov_interface(
         namespace_name=namespace.name,
         vm_name=f"{SRIOV}-{HOT_PLUG_STR}-vm2",
         sriov_network_for_hot_plug=sriov_network_for_hot_plug,
-        ipv4_address=f"{IPV4_ADDRESS_SUBNET_PREFIX}.{next(index_number)}",
+        ipv4_address=random_ipv4_address(net_seed=0, host_address=next(index_number)),
         client=unprivileged_client,
     )
 
