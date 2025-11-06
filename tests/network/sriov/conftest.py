@@ -12,6 +12,7 @@ from ocp_resources.template import Template
 from pyhelper_utils.shell import run_ssh_commands
 from timeout_sampler import TimeoutSampler
 
+from tests.network.libs.ip import random_ipv4_address
 from utilities.constants import (
     CNV_SUPPLEMENTAL_TEMPLATES_URL,
     MTU_9000,
@@ -124,7 +125,7 @@ def sriov_vm1(index_number, sriov_workers_node1, namespace, unprivileged_client,
         name="sriov-vm1",
         namespace=namespace,
         worker=sriov_workers_node1,
-        ip_config="10.200.1.1/24",
+        ip_config=f"{random_ipv4_address(net_seed=0, host_address=1)}/24",
         sriov_network=sriov_network,
     )
 
@@ -137,7 +138,7 @@ def sriov_vm2(index_number, unprivileged_client, sriov_workers_node2, namespace,
         name="sriov-vm2",
         namespace=namespace,
         worker=sriov_workers_node2,
-        ip_config="10.200.1.2/24",
+        ip_config=f"{random_ipv4_address(net_seed=0, host_address=2)}/24",
         sriov_network=sriov_network,
     )
 
@@ -156,7 +157,7 @@ def sriov_vm3(
         name="sriov-vm3",
         namespace=namespace,
         worker=sriov_workers_node1,
-        ip_config="10.200.3.1/24",
+        ip_config=f"{random_ipv4_address(net_seed=1, host_address=1)}/24",
         sriov_network=sriov_network_vlan,
     )
 
@@ -175,7 +176,7 @@ def sriov_vm4(
         name="sriov-vm4",
         namespace=namespace,
         worker=sriov_workers_node2,
-        ip_config="10.200.3.2/24",
+        ip_config=f"{random_ipv4_address(net_seed=1, host_address=2)}/24",
         sriov_network=sriov_network_vlan,
     )
 
@@ -241,7 +242,7 @@ def sriov_vm_migrate(index_number, unprivileged_client, namespace, sriov_network
         unprivileged_client=unprivileged_client,
         name="sriov-vm-migrate",
         namespace=namespace,
-        ip_config="10.200.1.3/24",
+        ip_config=f"{random_ipv4_address(net_seed=0, host_address=3)}/24",
         sriov_network=sriov_network,
     )
 
