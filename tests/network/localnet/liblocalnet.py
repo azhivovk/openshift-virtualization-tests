@@ -216,18 +216,17 @@ def client_server_active_connection(
 
 @contextlib.contextmanager
 def create_nncp_localnet_on_secondary_node_nic(
-    worker_node_available_nic: str, mtu: int | None = None
+    nodes_common_available_nic_name: str, mtu: int | None = None
 ) -> Generator[libnncp.NodeNetworkConfigurationPolicy, None, None]:
     """Create NNCP to configure an OVS bridge on a secondary NIC across all worker nodes.
 
     Note:
         This function assumes homogeneous hardware—all workers must have a NIC with
-        the same name as the one selected from worker_node. The configuration is applied to
-        all workers to support anti-affinity scheduled VMs.
+        the same name. The configuration is applied to all workers to support anti-affinity scheduled VMs.
 
     Args:
-        worker_node_available_nic: Name of the available NIC on worker_node1.
-        mtu: Optional MTU to configure on both the physical NIC and bridge.
+        nodes_common_available_nic_name: The name of common available NIC on all nodes.
+        mtu: Optional MTU to configure on the physical NIC.
 
     Yields:
         The created NodeNetworkConfigurationPolicy.
@@ -239,7 +238,7 @@ def create_nncp_localnet_on_secondary_node_nic(
         # Ensure the physical NIC MTU matches the network MTU
         interfaces.append(
             libnncp.Interface(
-                name=worker_node_available_nic,
+                name=nodes_common_available_nic_name,
                 type=NNCP_INTERFACE_TYPE_ETHERNET,
                 mtu=mtu,
                 state=libnncp.Resource.Interface.State.UP,
@@ -257,7 +256,7 @@ def create_nncp_localnet_on_secondary_node_nic(
                 options=libnncp.BridgeOptions(libnncp.STP(enabled=False)),
                 port=[
                     libnncp.Port(
-                        name=worker_node_available_nic,
+                        name=nodes_common_available_nic_name,
                     )
                 ],
             ),

@@ -3,7 +3,6 @@ from collections.abc import Generator
 import pytest
 from kubernetes.dynamic import DynamicClient
 from ocp_resources.namespace import Namespace
-from ocp_resources.node import Node
 
 import tests.network.libs.nodenetworkconfigurationpolicy as libnncp
 from libs.net.traffic_generator import TcpServer
@@ -209,14 +208,21 @@ def localnet_client(localnet_running_vms: tuple[BaseVirtualMachine, BaseVirtualM
 
 @pytest.fixture(scope="module")
 def cudn_localnet_ovs_bridge(
-    vlan_id: int,
-    namespace_localnet_1: Namespace,
+    vlan_id: int, namespace_localnet_1: Namespace, request: pytest.FixtureRequest
 ) -> Generator[libcudn.ClusterUserDefinedNetwork]:
+    params = getattr(request, "param", {})
+    mtu = None
+
+    mtu_fixture_name = params.get("mtu")
+    if mtu_fixture_name:
+        mtu = request.getfixturevalue(mtu_fixture_name)
+
     with localnet_cudn(
         name=LOCALNET_OVS_BRIDGE_NETWORK,
         match_labels=LOCALNET_TEST_LABEL,
         vlan_id=vlan_id,
         physical_network_name=LOCALNET_OVS_BRIDGE_NETWORK,
+        mtu=mtu,
     ) as cudn:
         cudn.wait_for_status_success()
         yield cudn
@@ -352,8 +358,13 @@ def migrated_localnet_vm(
 
 
 @pytest.fixture(scope="module")
+def nodes_common_available_nic_name(hosts_common_available_ports: list[str]) -> str:
+    return hosts_common_available_ports[-1]
+
+
+@pytest.fixture(scope="module")
 def nncp_localnet_on_secondary_node_nic(
-    nodes_common_available_nic: str, request: pytest.FixtureRequest
+    nodes_common_available_nic_name: str, request: pytest.FixtureRequest
 ) -> Generator[libnncp.NodeNetworkConfigurationPolicy]:
     params = getattr(request, "param", {})
     mtu = None
@@ -363,6 +374,6 @@ def nncp_localnet_on_secondary_node_nic(
         mtu = request.getfixturevalue(mtu_fixture_name)
 
     with create_nncp_localnet_on_secondary_node_nic(
-        nodes_common_available_nic=nodes_common_available_nic, mtu=mtu
+        nodes_common_available_nic_name=nodes_common_available_nic_name, mtu=mtu
     ) as nncp:
         yield nncp
