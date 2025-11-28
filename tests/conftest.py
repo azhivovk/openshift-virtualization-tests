@@ -1079,14 +1079,15 @@ def sriov_node_policy(
     workers_utility_pods,
     sriov_namespace,
 ):
-    yield from create_sriov_node_policy(
+    with create_sriov_node_policy(
         nncp_name="test-sriov-policy",
         namespace=sriov_namespace.name,
         sriov_iface=sriov_unused_ifaces[0],
         sriov_nodes_states=sriov_nodes_states,
         sriov_resource_name="sriov_net",
-        client=admin_client,
-    )
+        admin_client=admin_client,
+    ) as sriov_node_policy:
+        yield sriov_node_policy
 
 
 @pytest.fixture(scope="session")
