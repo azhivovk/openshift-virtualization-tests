@@ -3,6 +3,7 @@ import time
 import pytest
 
 from libs.net import netattachdef
+from libs.net.vmspec import lookup_iface_status_ip
 from tests.network.l2_bridge.utils import (
     check_mac_released,
     create_bridge_interface_for_hot_plug,
@@ -23,7 +24,6 @@ from utilities.constants import FLAT_OVERLAY_STR, SRIOV
 from utilities.network import (
     IfaceNotFound,
     assert_ping_successful,
-    get_vmi_ip_v4_by_name,
     network_nad,
 )
 
@@ -476,9 +476,10 @@ class TestHotPlugInterfaceToVmWithOnlyPrimaryInterface:
     ):
         assert_ping_successful(
             src_vm=running_vm_for_nic_hot_plug,
-            dst_ip=get_vmi_ip_v4_by_name(
+            dst_ip=lookup_iface_status_ip(
                 vm=running_utility_vm_for_connectivity_check,
-                name=network_attachment_definition_for_hot_plug.name,
+                iface_name=network_attachment_definition_for_hot_plug.name,
+                ip_family=4,
             ),
         )
 
@@ -530,9 +531,10 @@ class TestHotPlugInterfaceToVmWithOnlyPrimaryInterface:
     ):
         assert_ping_successful(
             src_vm=running_vm_for_jumbo_nic_hot_plug,
-            dst_ip=get_vmi_ip_v4_by_name(
+            dst_ip=lookup_iface_status_ip(
                 vm=running_utility_vm_for_connectivity_check,
-                name=hot_plugged_jumbo_interface_in_utility_vm.name,
+                iface_name=hot_plugged_jumbo_interface_in_utility_vm.name,
+                ip_family=4,
             ),
             packet_size=cluster_hardware_mtu,
         )
@@ -575,9 +577,10 @@ class TestHotPlugInterfaceToVmWithOnlyPrimaryInterface:
     ):
         assert_ping_successful(
             src_vm=vm1_with_hot_plugged_sriov_interface,
-            dst_ip=get_vmi_ip_v4_by_name(
+            dst_ip=lookup_iface_status_ip(
                 vm=vm2_with_hot_plugged_sriov_interface,
-                name=sriov_network_for_hot_plug.name,
+                iface_name=sriov_network_for_hot_plug.name,
+                ip_family=4,
             ),
         )
 
@@ -609,9 +612,10 @@ class TestHotPlugInterfaceToVmWithSecondaryInterface:
     ):
         assert_ping_successful(
             src_vm=running_vm_with_secondary_and_hot_plugged_interfaces,
-            dst_ip=get_vmi_ip_v4_by_name(
+            dst_ip=lookup_iface_status_ip(
                 vm=running_utility_vm_for_connectivity_check,
-                name=network_attachment_definition_for_hot_plug.name,
+                iface_name=network_attachment_definition_for_hot_plug.name,
+                ip_family=4,
             ),
             interface=guest_interface_name,
         )
@@ -647,9 +651,10 @@ class TestHotPlugInterfaceToVmWithSecondaryInterface:
     ):
         assert_ping_successful(
             src_vm=running_vm_with_secondary_and_hot_plugged_interfaces,
-            dst_ip=get_vmi_ip_v4_by_name(
+            dst_ip=lookup_iface_status_ip(
                 vm=running_utility_vm_for_connectivity_check,
-                name=network_attachment_definition_for_hot_plug.name,
+                iface_name=network_attachment_definition_for_hot_plug.name,
+                ip_family=4,
             ),
             interface=SECONDARY_SETUP_INTERFACE_NAME,
         )
