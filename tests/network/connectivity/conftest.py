@@ -261,7 +261,7 @@ def vm_linux_bridge_attached_vma_source(
     nad_linux_bridge,
     nad_linux_bridge_vlan_1,
     nad_linux_bridge_vlan_2,
-    dual_stack_network_data,
+    ipv6_network_data,
 ):
     network_names = [
         nad_linux_bridge.name,
@@ -274,7 +274,7 @@ def vm_linux_bridge_attached_vma_source(
         end_ip_octet=1,
         node_selector=get_node_selector_dict(node_selector=worker_node1.hostname),
         network_names=network_names,
-        dual_stack_network_data=dual_stack_network_data,
+        ipv6_network_data=ipv6_network_data,
         client=unprivileged_client,
         namespace=namespace,
     )
@@ -288,7 +288,7 @@ def vm_ovs_bridge_attached_vma_source(
     nad_ovs_bridge,
     nad_ovs_bridge_vlan_1,
     nad_ovs_bridge_vlan_2,
-    dual_stack_network_data,
+    ipv6_network_data,
 ):
     network_names = [
         nad_ovs_bridge.name,
@@ -301,7 +301,7 @@ def vm_ovs_bridge_attached_vma_source(
         end_ip_octet=1,
         node_selector=get_node_selector_dict(node_selector=worker_node1.hostname),
         network_names=network_names,
-        dual_stack_network_data=dual_stack_network_data,
+        ipv6_network_data=ipv6_network_data,
         client=unprivileged_client,
         namespace=namespace,
     )
@@ -315,7 +315,7 @@ def vm_linux_bridge_attached_vmb_destination(
     nad_linux_bridge,
     nad_linux_bridge_vlan_1,
     nad_linux_bridge_vlan_3,
-    dual_stack_network_data,
+    ipv6_network_data,
 ):
     network_names = [
         nad_linux_bridge.name,
@@ -328,7 +328,7 @@ def vm_linux_bridge_attached_vmb_destination(
         end_ip_octet=2,
         node_selector=get_node_selector_dict(node_selector=worker_node2.hostname),
         network_names=network_names,
-        dual_stack_network_data=dual_stack_network_data,
+        ipv6_network_data=ipv6_network_data,
         client=unprivileged_client,
         namespace=namespace,
     )
@@ -342,7 +342,7 @@ def vm_ovs_bridge_attached_vmb_destination(
     nad_ovs_bridge,
     nad_ovs_bridge_vlan_1,
     nad_ovs_bridge_vlan_3,
-    dual_stack_network_data,
+    ipv6_network_data,
 ):
     network_names = [
         nad_ovs_bridge.name,
@@ -355,7 +355,7 @@ def vm_ovs_bridge_attached_vmb_destination(
         end_ip_octet=2,
         node_selector=get_node_selector_dict(node_selector=worker_node2.hostname),
         network_names=network_names,
-        dual_stack_network_data=dual_stack_network_data,
+        ipv6_network_data=ipv6_network_data,
         client=unprivileged_client,
         namespace=namespace,
     )
