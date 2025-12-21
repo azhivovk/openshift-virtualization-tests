@@ -7,11 +7,14 @@ from collections import OrderedDict
 import pytest
 
 from libs.net.vmspec import lookup_iface_status_ip
+from tests.network.libs.bondnodenetworkconfigurationpolicy import (
+    BondNodeNetworkConfigurationPolicy,
+    create_bond_desired_state,
+)
 from tests.network.libs.ip import random_ipv4_address
 from tests.network.utils import assert_no_ping
 from utilities.infra import get_node_selector_dict
 from utilities.network import (
-    BondNodeNetworkConfigurationPolicy,
     assert_ping_successful,
     cloud_init_network_data,
     network_device,
@@ -44,14 +47,19 @@ def jumbo_frame_bond1_worker_1(
     """
     Create BOND if setup support BOND
     """
+    desired_state = create_bond_desired_state(
+        bond_name=BOND_NAME,
+        bond_ports=nodes_available_nics[worker_node1.name][-2:],
+        mtu=cluster_hardware_mtu,
+    )
     with BondNodeNetworkConfigurationPolicy(
         client=admin_client,
         name=f"jumbo-frame-bond{next(index_number)}-nncp",
         bond_name=BOND_NAME,
-        bond_ports=nodes_available_nics[worker_node1.name][-2:],
+        desired_state=desired_state,
         node_selector=get_node_selector_dict(node_selector=worker_node1.hostname),
-        mtu=cluster_hardware_mtu,
     ) as bond:
+        bond.wait_for_status_success()
         yield bond
 
 
@@ -66,14 +74,19 @@ def jumbo_frame_bond1_worker_2(
     """
     Create BOND if setup support BOND
     """
+    desired_state = create_bond_desired_state(
+        bond_name=BOND_NAME,
+        bond_ports=nodes_available_nics[worker_node2.name][-2:],
+        mtu=cluster_hardware_mtu,
+    )
     with BondNodeNetworkConfigurationPolicy(
         client=admin_client,
         name=f"jumbo-frame-bond{next(index_number)}-nncp",
         bond_name=BOND_NAME,
-        bond_ports=nodes_available_nics[worker_node2.name][-2:],
+        desired_state=desired_state,
         node_selector=get_node_selector_dict(node_selector=worker_node2.hostname),
-        mtu=cluster_hardware_mtu,
     ) as bond:
+        bond.wait_for_status_success()
         yield bond
 
 

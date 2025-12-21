@@ -114,6 +114,7 @@ class NodeNetworkConfigurationPolicy(Nncp):
         name: str,
         desired_state: DesiredState,
         node_selector: dict[str, str] | None = None,
+        **kwargs: Any,
     ):
         """
         Create and manage NodeNetworkConfigurationPolicy
@@ -124,6 +125,7 @@ class NodeNetworkConfigurationPolicy(Nncp):
             node_selector (dict, optional): A node selector that specifies the nodes to apply the node network
                 configuration policy to.
             client: Dynamic client used to interact with the cluster.
+            **kwargs: Additional arguments passed to the parent class.
         """
         self._desired_state = desired_state
         super().__init__(
@@ -132,6 +134,7 @@ class NodeNetworkConfigurationPolicy(Nncp):
             desired_state=asdict(desired_state, dict_factory=dict_normalization_for_dataclass),
             node_selector=node_selector,
             wait_for_resource=True,
+            **kwargs,
         )
 
     @property

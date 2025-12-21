@@ -8,10 +8,12 @@ from contextlib import contextmanager
 
 import pytest
 
-from utilities.constants import TIMEOUT_9MIN
+from tests.network.libs.bondnodenetworkconfigurationpolicy import (
+    BondNodeNetworkConfigurationPolicy,
+    create_bond_desired_state,
+)
 from utilities.infra import ExecCommandOnPod, get_node_selector_dict, get_node_selector_name
 from utilities.network import (
-    BondNodeNetworkConfigurationPolicy,
     network_device,
     network_nad,
 )
@@ -73,14 +75,20 @@ def matrix_bond_modes_bond(
     Create BOND if setup support BOND
     """
     bond_index = next(index_number)
-    with BondNodeNetworkConfigurationPolicy(
-        name=f"matrix-bond{bond_index}-nncp",
-        bond_name=f"mtx-bond{bond_index}",
-        client=admin_client,
+    bond_name = f"mtx-bond{bond_index}"
+    desired_state = create_bond_desired_state(
+        bond_name=bond_name,
         bond_ports=nodes_available_nics[worker_node1.name][-2:],
         mode=link_aggregation_mode_no_connectivity_matrix__function__,
+    )
+    with BondNodeNetworkConfigurationPolicy(
+        client=admin_client,
+        name=f"matrix-bond{bond_index}-nncp",
+        bond_name=bond_name,
+        desired_state=desired_state,
         node_selector=get_node_selector_dict(node_selector=worker_node1.hostname),
     ) as bond:
+        bond.wait_for_status_success()
         yield bond
 
 
@@ -160,15 +168,20 @@ def bridge_on_bond_fail_over_mac(
 @pytest.fixture()
 def active_backup_bond_with_fail_over_mac(admin_client, index_number, worker_node1, nodes_available_nics):
     bond_index = next(index_number)
+    bond_name = f"act-bond{bond_index}"
+    desired_state = create_bond_desired_state(
+        bond_name=bond_name,
+        bond_ports=nodes_available_nics[worker_node1.name][-2:],
+        bond_options={"fail_over_mac": "active"},
+    )
     with BondNodeNetworkConfigurationPolicy(
         client=admin_client,
         name=f"active-bond{bond_index}-nncp",
-        bond_name=f"act-bond{bond_index}",
-        bond_ports=nodes_available_nics[worker_node1.name][-2:],
+        bond_name=bond_name,
+        desired_state=desired_state,
         node_selector=get_node_selector_dict(node_selector=worker_node1.hostname),
-        options={"fail_over_mac": "active"},
-        success_timeout=TIMEOUT_9MIN,
     ) as bond:
+        bond.wait_for_status_success()
         yield bond
 
 
@@ -193,13 +206,19 @@ def vm_with_fail_over_mac_bond(
 @pytest.fixture()
 def bond_resource(admin_client, index_number, nodes_available_nics, worker_node1):
     bond_idx = next(index_number)
+    bond_name = f"bond-w-port{bond_idx}"
+    desired_state = create_bond_desired_state(
+        bond_name=bond_name,
+        bond_ports=nodes_available_nics[worker_node1.name][-2:],
+    )
     with BondNodeNetworkConfigurationPolicy(
         client=admin_client,
         name=f"bond-with-port{bond_idx}nncp",
-        bond_name=f"bond-w-port{bond_idx}",
-        bond_ports=nodes_available_nics[worker_node1.name][-2:],
+        bond_name=bond_name,
+        desired_state=desired_state,
         node_selector=get_node_selector_dict(node_selector=worker_node1.hostname),
     ) as bond:
+        bond.wait_for_status_success()
         yield bond
 
 
@@ -226,14 +245,20 @@ def test_active_backup_bond_with_fail_over_mac(
     workers_utility_pods,
 ):
     bond_index = next(index_number)
-    with BondNodeNetworkConfigurationPolicy(
-        name=f"test-active-bond{bond_index}-nncp",
-        bond_name=f"test-act-bond{bond_index}",
-        client=admin_client,
+    bond_name = f"test-act-bond{bond_index}"
+    desired_state = create_bond_desired_state(
+        bond_name=bond_name,
         bond_ports=nodes_available_nics[worker_node1.name][-2:],
+        bond_options={"fail_over_mac": "active"},
+    )
+    with BondNodeNetworkConfigurationPolicy(
+        client=admin_client,
+        name=f"test-active-bond{bond_index}-nncp",
+        bond_name=bond_name,
+        desired_state=desired_state,
         node_selector=get_node_selector_dict(node_selector=worker_node1.hostname),
-        options={"fail_over_mac": "active"},
     ) as bond:
+        bond.wait_for_status_success()
         assert_bond_validation(utility_pods=workers_utility_pods, bond=bond)
 
 
