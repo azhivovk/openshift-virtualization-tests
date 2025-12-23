@@ -159,8 +159,8 @@ def lookup_iface_status_ip(
             vm=vm,
             iface_name=iface_name,
             predicate=lambda iface_status: bool(
-            _lookup_first_ip_address(ip_addresses=iface_status.get("ipAddresses", []), ip_family=ip_family)
-        ),
+                _lookup_first_ip_address(ip_addresses=iface_status.get("ipAddresses", []), ip_family=ip_family)
+            ),
             timeout=120,
         )
     except VMInterfaceStatusNotFoundError:
