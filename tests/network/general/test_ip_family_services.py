@@ -12,8 +12,6 @@ from utilities.infra import get_node_selector_dict, run_virtctl_command
 from utilities.network import compose_cloud_init_data_dict
 from utilities.virt import VirtualMachineForTests, fedora_vm_body
 
-SINGLE_STACK_SERVICE_IP_FAMILY = "IPv4"
-
 SERVICE_IP_FAMILY_POLICY_SINGLE_STACK = "SingleStack"
 SERVICE_IP_FAMILY_POLICY_PREFER_DUAL_STACK = "PreferDualStack"
 SERVICE_IP_FAMILY_POLICY_REQUIRE_DUAL_STACK = "RequireDualStack"
@@ -54,11 +52,11 @@ def running_vm_for_exposure(
 
 
 @pytest.fixture()
-def single_stack_service(running_vm_for_exposure):
+def single_stack_service(running_vm_for_exposure, single_stack_service_ip_family):
     running_vm_for_exposure.custom_service_enable(
-        service_name="single-stack-svc",
+        service_name=f"single-stack-svc-{single_stack_service_ip_family.lower()}",
         port=SSH_PORT_22,
-        ip_families=[SINGLE_STACK_SERVICE_IP_FAMILY],
+        ip_families=[single_stack_service_ip_family],
     )
 
 
@@ -108,18 +106,26 @@ def expected_num_families_in_service(request, dual_stack_cluster):
 @pytest.mark.gating
 @pytest.mark.s390x
 class TestServiceConfigurationViaManifest:
-    @pytest.mark.polarion("CNV-5789")
     @pytest.mark.single_nic
+    @pytest.mark.usefixtures("single_stack_service")
+    @pytest.mark.parametrize(
+        "single_stack_service_ip_family",
+        [
+            pytest.param("IPv4", marks=[pytest.mark.ipv4, pytest.mark.polarion("CNV-5789")]),
+            pytest.param("IPv6", marks=[pytest.mark.ipv6, pytest.mark.polarion("CNV-12557")]),
+        ],
+        indirect=False,
+    )
     # Not marked as `conformance`; requires NMState
     def test_service_with_configured_ip_families(
         self,
         running_vm_for_exposure,
-        single_stack_service,
+        single_stack_service_ip_family,
     ):
         assert (
             len(running_vm_for_exposure.custom_service.instance.spec.ipFamilies) == 1
-            and running_vm_for_exposure.custom_service.instance.spec.ipFamilies[0] == SINGLE_STACK_SERVICE_IP_FAMILY
-        ), "Wrong ipFamilies set in service"
+            and running_vm_for_exposure.custom_service.instance.spec.ipFamilies[0] == single_stack_service_ip_family
+        ), f"Wrong ipFamilies set in service: {single_stack_service_ip_family}"
 
     @pytest.mark.polarion("CNV-5831")
     @pytest.mark.single_nic
