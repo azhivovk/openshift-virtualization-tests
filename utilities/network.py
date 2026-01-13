@@ -21,6 +21,7 @@ from ocp_resources.node_network_configuration_policy import (
 )
 from ocp_resources.node_network_state import NodeNetworkState
 from ocp_resources.pod import Pod
+from ocp_resources.resource import get_client
 from ocp_resources.sriov_network import SriovNetwork
 from ocp_resources.sriov_network_node_policy import SriovNetworkNodePolicy
 from pytest_testconfig import config as py_config
@@ -1011,3 +1012,54 @@ def wait_for_node_marked_by_bridge(bridge_nad: LinuxBridgeNetworkAttachmentDefin
     except TimeoutExpiredError:
         LOGGER.error(f"Node {node.hostname} is not marked by {bridge_nad.bridge_name} bridge")
         raise
+
+
+def add_ipv6_network_to_cloud_init(cloud_init_volume, cloud_init_volume_type, generate_cloud_init_data_func):
+    """
+    Add IPv6 network configuration to cloud-init for SSH connectivity in IPv6 single-stack clusters.
+
+    Args:
+        cloud_init_volume: Cloud-init volume dictionary to modify.
+        cloud_init_volume_type: Type of cloud-init volume.
+        generate_cloud_init_data_func: Function to generate cloud-init data.
+        admin_client: Admin client to check cluster network configuration.
+    """
+    if not is_ipv6_single_stack_cluster(admin_client=get_client()):
+        return
+
+    ipv6_network_data = {
+        "networkData": {
+            "version": 2,
+            "ethernets": {
+                "eth0": {
+                    "addresses": ["fd10:0:2::2/120"],
+                    "gateway6": "fd10:0:2::1",
+                    "dhcp4": False,
+                    "dhcp6": False,
+                },
+            },
+        }
+    }
+    generated_ipv6_cloud_init = generate_cloud_init_data_func(data=ipv6_network_data)
+    cloud_init_volume.setdefault(cloud_init_volume_type, {}).setdefault("networkData", "")
+    cloud_init_volume[cloud_init_volume_type]["networkData"] += generated_ipv6_cloud_init["networkData"]
+
+
+def is_ipv6_single_stack_cluster(admin_client):
+    """
+    Check if cluster is running in IPv6 single-stack mode.
+
+    Args:
+        admin_client: Admin client to access cluster resources.
+
+    Returns:
+        bool: True if cluster is IPv6 single-stack, False otherwise.
+    """
+    cluster_service_network = Network(client=admin_client, name="cluster").instance.status.serviceNetwork
+    if not cluster_service_network:
+        return False
+
+    ipv6_supported = any([ipaddress.ip_network(ip).version == 6 for ip in cluster_service_network])
+    ipv4_supported = any([ipaddress.ip_network(ip).version == 4 for ip in cluster_service_network])
+
+    return ipv6_supported and not ipv4_supported

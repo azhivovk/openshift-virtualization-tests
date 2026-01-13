@@ -91,6 +91,7 @@ from utilities.constants import (
 )
 from utilities.data_collector import collect_vnc_screenshot_for_vms
 from utilities.hco import wait_for_hco_conditions
+from utilities.network import add_ipv6_network_to_cloud_init
 from utilities.storage import get_default_storage_class
 
 if TYPE_CHECKING:
@@ -773,9 +774,11 @@ class VirtualMachineForTests(VirtualMachine):
         return template_spec
 
     def update_vm_cloud_init_data(self, template_spec):
+        cloud_init_volume = vm_cloud_init_volume(vm_spec=template_spec)
+        cloud_init_volume_type = self.cloud_init_type or CLOUD_INIT_NO_CLOUD
+        cloud_init_configured = False
+
         if self.cloud_init_data:
-            cloud_init_volume = vm_cloud_init_volume(vm_spec=template_spec)
-            cloud_init_volume_type = self.cloud_init_type or CLOUD_INIT_NO_CLOUD
             generated_cloud_init = generate_cloud_init_data(data=self.cloud_init_data)
             existing_cloud_init_data = cloud_init_volume.get(cloud_init_volume_type)
             # If spec already contains cloud init data
@@ -785,7 +788,20 @@ class VirtualMachineForTests(VirtualMachine):
                 )
             else:
                 cloud_init_volume[cloud_init_volume_type] = generated_cloud_init
+            cloud_init_configured = True
 
+        # In IPv6 single-stack clusters, add network configuration for SSH connectivity
+        # Skip if user already provided networkData in cloud_init_data
+        if not (self.cloud_init_data and "networkData" in self.cloud_init_data):
+            add_ipv6_network_to_cloud_init(
+                cloud_init_volume=cloud_init_volume,
+                cloud_init_volume_type=cloud_init_volume_type,
+                generate_cloud_init_data_func=generate_cloud_init_data,
+            )
+            if cloud_init_volume.get(cloud_init_volume_type, {}).get("networkData"):
+                cloud_init_configured = True
+
+        if cloud_init_configured:
             template_spec = vm_cloud_init_disk(vm_spec=template_spec)
 
         return template_spec
