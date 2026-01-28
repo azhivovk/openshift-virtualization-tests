@@ -9,6 +9,8 @@ from timeout_sampler import retry
 
 from libs.net.vmspec import lookup_iface_status_ip
 from libs.vm.vm import BaseVirtualMachine
+from utilities.constants import IPV6_STR
+from utilities.network import get_valid_ip_address
 
 _DEFAULT_CMD_TIMEOUT_SEC: Final[int] = 10
 _IPERF_BIN: Final[str] = "iperf3"
@@ -229,3 +231,19 @@ def client_server_active_connection(
             maximum_segment_size=maximum_segment_size,
         ) as client:
             yield client, server
+
+
+def build_ping_command(dst_ip: str, count: int, timeout: int) -> str:
+    """
+    Build a ping command string that handles both IPv4 and IPv6 addresses.
+
+    Args:
+        dst_ip: Destination IP address to ping.
+        count: Number of packets to send.
+        timeout: Timeout in seconds.
+
+    Returns:
+        str: Ping command string ready to execute.
+    """
+    ping_ipv6_flag = "-6" if get_valid_ip_address(dst_ip=dst_ip, family=IPV6_STR) else ""
+    return f"ping {ping_ipv6_flag} {dst_ip} -c {count} -w {timeout}"

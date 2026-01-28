@@ -769,20 +769,21 @@ def get_ip_from_vm_or_virt_handler_pod(family, vm=None, virt_handler_pod=None):
     return ip_list[0] if ip_list else None
 
 
-def get_valid_ip_address(dst_ip, family):
+def get_valid_ip_address(dst_ip: str, family: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address | None:
     """
     Return the IP address string if the input address is either IPv4 or IPv6 address, else None.
 
     Args:
-        family (str): IP version requested - "ipv4" or "ipv6"
+        dst_ip: IP address string to validate.
+        family: IP version requested - "ipv4" or "ipv6"
 
     Returns:
-        str or None: If IP is valid - return IP, if not - return None
+        IPv4Address, IPv6Address, or None: If IP is valid - return IP object, if not - return None
     """
     try:
         return ipaddress.IPv4Address(address=dst_ip) if family == IPV4_STR else ipaddress.IPv6Address(address=dst_ip)
     except ipaddress.AddressValueError:
-        return
+        return None
 
 
 def compose_cloud_init_data_dict(network_data=None, ipv6_network_data=None):
