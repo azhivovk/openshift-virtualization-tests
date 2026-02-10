@@ -298,9 +298,10 @@ def vm_for_restricted_namespace_cloning_test(
         service_accounts=[restricted_namespace_service_account.name],
         client=unprivileged_client,
         memory_guest=Images.Cirros.DEFAULT_MEMORY_SIZE,
+        ssh=False,
         data_volume_template=data_volume_clone_settings.res,
     ) as vm:
-        running_vm(vm=vm, wait_for_interfaces=False)
+        running_vm(vm=vm, wait_for_interfaces=False, check_ssh_connectivity=False)
         yield vm
 
 

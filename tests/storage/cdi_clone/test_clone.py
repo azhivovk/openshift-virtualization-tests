@@ -50,6 +50,7 @@ def create_vm_from_clone_dv_template(
         os_flavor=Images.Cirros.OS_FLAVOR,
         client=client,
         memory_guest=Images.Cirros.DEFAULT_MEMORY_SIZE,
+        ssh=False,
         data_volume_template=data_volume_template_dict(
             target_dv_name=dv_name,
             target_dv_namespace=namespace_name,
@@ -59,7 +60,7 @@ def create_vm_from_clone_dv_template(
             storage_class=storage_class,
         ),
     ) as vm:
-        running_vm(vm=vm, wait_for_interfaces=False)
+        running_vm(vm=vm, wait_for_interfaces=False, check_ssh_connectivity=False)
 
 
 @pytest.mark.tier3
