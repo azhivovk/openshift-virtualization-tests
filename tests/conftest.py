@@ -72,7 +72,7 @@ import utilities.hco
 from libs.net.cluster import ipv4_supported_cluster, ipv6_supported_cluster
 from libs.net.ip import filter_link_local_addresses, random_ipv4_address, random_ipv6_address
 from libs.net.vmspec import lookup_iface_status
-from tests.utils import download_and_extract_tar
+from tests.utils import download_and_extract_tar, get_vlan_index_number
 from utilities.artifactory import get_artifactory_header, get_http_image_url, get_test_artifact_server_url
 from utilities.bitwarden import get_cnv_tests_secret_by_name
 from utilities.cluster import cache_admin_client, get_oc_whoami_username
@@ -2734,3 +2734,16 @@ def hugepages_gib_values(workers):
         for worker in workers
         if (value := worker.instance.status.allocatable.get(NODE_HUGE_PAGES_1GI_KEY))
     ]
+
+
+@pytest.fixture(scope="session")
+def vlans_list():
+    vlans = py_config["vlans"]
+    if not isinstance(vlans, list):
+        vlans = vlans.split(",")
+    return [int(_id) for _id in vlans]
+
+
+@pytest.fixture(scope="module")
+def vlan_index_number(vlans_list):
+    return get_vlan_index_number(vlans_list=vlans_list)
