@@ -12,6 +12,8 @@ from ocp_resources.virtual_machine_instance_migration import (
 from timeout_sampler import TimeoutExpiredError, TimeoutSampler
 
 from tests.observability.metrics.constants import (
+    BINDING_NAME,
+    BINDING_TYPE,
     KUBEVIRT_CONSOLE_ACTIVE_CONNECTIONS_BY_VMI,
     KUBEVIRT_VM_CREATED_BY_POD_TOTAL,
     KUBEVIRT_VM_DISK_ALLOCATED_SIZE_BYTES,
@@ -21,6 +23,7 @@ from tests.observability.metrics.constants import (
     SUM_KUBEVIRT_VMI_PHASE_TRANSITION_TIME_FROM_DELETION_SECONDS_BUCKET_SUCCEEDED,
 )
 from tests.observability.metrics.utils import (
+    binding_name_and_type_from_vm_or_vmi,
     compare_metric_file_system_values_with_vm_file_system_values,
     get_pvc_size_bytes,
     timestamp_to_seconds,
@@ -463,7 +466,9 @@ class TestVmVnicInfo:
             ),
         ],
     )
-    def test_metric_kubevirt_vm_vnic_info_after_nad_swap(self, query):
+    def test_metric_kubevirt_vm_vnic_info_after_nad_swap(
+        self, prometheus, post_nad_swap_vm, nad_b_for_vnic_info, query
+    ):
         """
         Test that vnic_info metric updates the network label after a NAD swap.
 
@@ -472,17 +477,28 @@ class TestVmVnicInfo:
 
         Preconditions:
             - Two Network Attachment Definitions (NAD-A, NAD-B) with different VLANs on the same Linux bridge
-            - Running VM with a secondary bridge interface attached to NAD-A
+            - Running VM with a secondary bridge interface whose reference was swapped from NAD-A to NAD-B
+              and the triggered live migration has completed
 
         Steps:
-            1. Swap the VM secondary network reference from NAD-A to NAD-B
-            2. Query vnic_info metric for the secondary interface
+            1. Query vnic_info metric for the secondary interface
 
         Expected:
             - vnic_info labels match the VM spec after NAD swap
         """
-
-    test_metric_kubevirt_vm_vnic_info_after_nad_swap.__test__ = False
+        vm_spec = post_nad_swap_vm.instance.spec.template.spec
+        secondary_interface = next(iface for iface in vm_spec.domain.devices.interfaces if iface["name"] == "secondary")
+        binding_info = binding_name_and_type_from_vm_or_vmi(vm_interface=secondary_interface)
+        validate_vnic_info(
+            prometheus=prometheus,
+            vnic_info_to_compare={
+                "vnic_name": "secondary",
+                BINDING_NAME: binding_info[BINDING_NAME],
+                BINDING_TYPE: binding_info[BINDING_TYPE],
+                "network": nad_b_for_vnic_info.name,
+            },
+            metric_name=query.format(vm_name=post_nad_swap_vm.name),
+        )
 
 
 class TestVmiPhaseTransitionFromDeletion:
