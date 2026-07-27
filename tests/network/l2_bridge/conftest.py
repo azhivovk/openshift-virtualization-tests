@@ -41,11 +41,6 @@ VMB_MPLS_ROUTE_TAG = 200
 
 
 @pytest.fixture(scope="class")
-def bridge_device_type(request):
-    return request.param
-
-
-@pytest.fixture(scope="class")
 def l2_bridge_device_name(index_number):
     yield f"br{next(index_number)}test"
 
