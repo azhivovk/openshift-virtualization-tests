@@ -9,6 +9,7 @@ import pytest
 from libs.net.ip import random_ipv4_address
 from libs.net.vmspec import lookup_iface_status_ip
 from tests.network.utils import assert_no_ping
+from utilities.constants.networking import LINUX_BRIDGE, OVS_BRIDGE
 from utilities.infra import get_node_selector_dict
 from utilities.network import (
     BondNodeNetworkConfigurationPolicy,
@@ -84,14 +85,14 @@ def jumbo_frame_bridge_on_bond_worker_1(
     nmstate_dependent_placeholder,
     admin_client,
     cluster_hardware_mtu,
-    bridge_device_matrix__class__,
     jumbo_frame_bond1_worker_1,
+    bridge_device_type,
 ):
     """
     Create bridge and attach the BOND to it
     """
     with network_device(
-        interface_type=bridge_device_matrix__class__,
+        interface_type=bridge_device_type,
         nncp_name="jumbo-frame-bridge-on-bond-1",
         interface_name=BRIDGE_NAME,
         node_selector=jumbo_frame_bond1_worker_1.node_selector,
@@ -107,14 +108,14 @@ def jumbo_frame_bridge_on_bond_worker_2(
     nmstate_dependent_placeholder,
     admin_client,
     cluster_hardware_mtu,
-    bridge_device_matrix__class__,
     jumbo_frame_bond1_worker_2,
+    bridge_device_type,
 ):
     """
     Create bridge and attach the BOND to it
     """
     with network_device(
-        interface_type=bridge_device_matrix__class__,
+        interface_type=bridge_device_type,
         nncp_name="jumbo-frame-bridge-on-bond-2",
         interface_name=BRIDGE_NAME,
         node_selector=jumbo_frame_bond1_worker_2.node_selector,
@@ -129,14 +130,14 @@ def jumbo_frame_bridge_on_bond_worker_2(
 def br1bond_nad(
     admin_client,
     cluster_hardware_mtu,
-    bridge_device_matrix__class__,
     namespace,
     jumbo_frame_bridge_on_bond_worker_1,
     jumbo_frame_bridge_on_bond_worker_2,
+    bridge_device_type,
 ):
     with network_nad(
         namespace=namespace,
-        nad_type=bridge_device_matrix__class__,
+        nad_type=bridge_device_type,
         nad_name=f"{BRIDGE_NAME}-bond-nad",
         interface_name=jumbo_frame_bridge_on_bond_worker_1.bridge_name,
         mtu=cluster_hardware_mtu,
@@ -217,10 +218,11 @@ def running_bond_bridge_attached_vmb(bond_bridge_attached_vmb):
     return bond_bridge_attached_vmb
 
 
+@pytest.mark.parametrize(argnames="bridge_device_type", argvalues=[LINUX_BRIDGE, OVS_BRIDGE], indirect=True)
 class TestBondJumboFrame:
     @pytest.mark.ipv4
     @pytest.mark.polarion("CNV-3367")
-    def test_connectivity_over_linux_bond_large_mtu(
+    def test_connectivity_over_bond_large_mtu(
         self,
         namespace,
         jumbo_frame_bridge_on_bond_worker_1,
@@ -232,7 +234,7 @@ class TestBondJumboFrame:
         running_bond_bridge_attached_vmb,
     ):
         """
-        Check connectivity over linux bridge with custom MTU
+        Check connectivity over bridge with custom MTU
         """
         icmp_header = 8
         ip_header = 20
@@ -246,7 +248,7 @@ class TestBondJumboFrame:
 
     @pytest.mark.ipv4
     @pytest.mark.polarion("CNV-3368")
-    def test_negative_mtu_linux_bond(
+    def test_negative_mtu_bond(
         self,
         namespace,
         jumbo_frame_bridge_on_bond_worker_1,
