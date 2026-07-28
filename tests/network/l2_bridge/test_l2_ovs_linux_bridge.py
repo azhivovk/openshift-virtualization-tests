@@ -17,7 +17,7 @@ pytestmark = [pytest.mark.ipv4, pytest.mark.usefixtures("hyperconverged_ovs_anno
 CUSTOM_ETH_PROTOCOL = "0x88B6"  # rfc5342 Local Experimental Ethertype. Used to test custom eth type
 
 
-@pytest.mark.parametrize("bridge_device_type", [LINUX_BRIDGE, OVS_BRIDGE], indirect=True)
+@pytest.mark.parametrize(argnames="bridge_device_type", argvalues=[LINUX_BRIDGE, OVS_BRIDGE], indirect=True)
 @pytest.mark.s390x
 class TestL2Bridge:
     """
