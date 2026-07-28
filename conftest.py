@@ -110,9 +110,8 @@ def pytest_addoption(parser):
     scale_group = parser.getgroup(name="Scale")
     session_group = parser.getgroup(name="Session")
     ci_group = parser.getgroup(name="CI")
-    csv_group = parser.getgroup(name="CSV")
     ai_insights_group = parser.getgroup(name="ai-job-insight")
-    csv_group.addoption("--update-csv", action="store_true")
+
     # Upgrade addoption
     install_upgrade_group.addoption(
         "--upgrade",
