@@ -10,7 +10,7 @@ import utilities.network
 from libs.net.ip import random_ipv4_address
 from libs.net.vmspec import lookup_iface_status_ip
 from tests.network.libs import cloudinit as netcloud
-from utilities.constants.networking import LINUX_BRIDGE
+from utilities.constants import LINUX_BRIDGE
 from utilities.infra import get_node_selector_dict
 from utilities.network import (
     BondNodeNetworkConfigurationPolicy,

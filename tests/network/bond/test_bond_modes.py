@@ -8,8 +8,7 @@ from contextlib import contextmanager
 
 import pytest
 
-from utilities.constants.networking import LINUX_BRIDGE
-from utilities.constants import TIMEOUT_9MIN
+from utilities.constants import LINUX_BRIDGE, TIMEOUT_9MIN
 from utilities.infra import ExecCommandOnPod, get_node_selector_dict, get_node_selector_name
 from utilities.network import (
     BondNodeNetworkConfigurationPolicy,
