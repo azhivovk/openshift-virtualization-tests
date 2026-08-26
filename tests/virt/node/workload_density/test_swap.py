@@ -4,11 +4,13 @@ import shlex
 import bitmath
 import pytest
 from ocp_resources.daemonset import DaemonSet
+from ocp_resources.kubevirt import KubeVirt
 from timeout_sampler import TimeoutExpiredError, TimeoutSampler
 
 from tests.virt.constants import REMOVE_NEWLINE
 from tests.virt.utils import get_match_expressions_dict, start_stress_on_vm
 from utilities.constants import TIMEOUT_5MIN, TIMEOUT_5SEC, TIMEOUT_20MIN, Images
+from utilities.hco import ResourceEditorValidateHCOReconcile
 from utilities.infra import ExecCommandOnPod
 from utilities.virt import VirtualMachineForTests, migrate_vm_and_verify, running_vm
 
@@ -43,6 +45,22 @@ def wait_virt_launcher_pod_using_swap(vm):
     except TimeoutExpiredError:
         LOGGER.error(f"virt-launcher pod does not use swap, current value: {sample}")
         raise
+
+
+@pytest.fixture(scope="class")
+def hco_memory_overcommit_increased(hyperconverged_resource_scope_class):
+    with ResourceEditorValidateHCOReconcile(
+        patches={
+            hyperconverged_resource_scope_class: {
+                "spec": {
+                    "higherWorkloadDensity": {"memoryOvercommitPercentage": 200},
+                }
+            }
+        },
+        list_resource_reconcile=[KubeVirt],
+        wait_for_reconcile_post_update=True,
+    ):
+        yield
 
 
 @pytest.fixture(scope="class")
@@ -129,7 +147,7 @@ def vm_for_swap_usage_test(
 def swap_vm_stress_started(vm_for_swap_usage_test):
     start_stress_on_vm(
         vm=vm_for_swap_usage_test,
-        stress_command="nohup stress-ng --vm 1 --vm-bytes 80% --vm-method zero-one -t 30m --vm-keep &> /dev/null &",
+        stress_command="nohup stress-ng --vm 1 --vm-bytes 100% --vm-method zero-one -t 30m --vm-keep &> /dev/null &",
     )
 
 
@@ -176,6 +194,7 @@ class TestVMCanUseSwap:
     @pytest.mark.polarion("CNV-11258")
     def test_virt_launcher_pod_use_swap(
         self,
+        hco_memory_overcommit_increased,
         vm_for_swap_usage_test,
         swap_vm_stress_started,
     ):
