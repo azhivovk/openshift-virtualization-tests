@@ -204,7 +204,7 @@ class TestConsole:
 
         # Verify connection sequence
         console.child.send.assert_any_call("\n\n")
-        console.child.expect.assert_any_call(["login:", r"#", r"\$"])
+        console.child.expect.assert_any_call(["login:", r"\$"])
         console.child.sendline.assert_any_call("testuser")
         console.child.expect.assert_any_call("Password:")
         console.child.sendline.assert_any_call("testpass")
@@ -229,7 +229,7 @@ class TestConsole:
 
         # Verify connection sequence without password
         console.child.send.assert_any_call("\n\n")
-        console.child.expect.assert_any_call(["login:", r"#", r"\$"])
+        console.child.expect.assert_any_call(["login:", r"\$"])
         console.child.sendline.assert_any_call("testuser")
         # Should not expect or send password
         password_calls = [call for call in console.child.expect.call_args_list if "Password:" in str(call)]
@@ -254,7 +254,7 @@ class TestConsole:
 
         # Should detect existing shell prompt and skip login
         console.child.send.assert_any_call("\n\n")
-        console.child.expect.assert_called_once_with(["login:", r"#", r"\$"])
+        console.child.expect.assert_called_once_with(["login:", r"\$"])
         # Should NOT send username or password
         assert console.child.sendline.call_count == 0
 
