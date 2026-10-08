@@ -79,3 +79,32 @@ class TestConnectivityAfterDpdkBackingDriverRestart:
         Expected:
             - TCP connectivity to the reference VM is preserved
         """
+
+    @pytest.mark.polarion("CNV-16848")
+    @pytest.mark.manual
+    def test_connectivity_after_driver_restart_and_migration(self):
+        """
+        Test that TCP connectivity from the under-test VM to the reference VM is
+        preserved after the backing driver was restarted and the under-test VM live-migrated,
+        for the parametrized IP family.
+
+        STP: https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/154
+
+        Parametrize:
+            - ip_family:
+                - ipv4 [Markers: ipv4]
+                - ipv6 [Markers: ipv6]
+
+        Preconditions:
+            - Running under-test VM with a ResourceClaimTemplate-backed OVS-DPDK network device
+            - Running reference VM with a ResourceClaimTemplate-backed OVS-DPDK network device
+            - IPv4+IPv6 TCP connectivity established between the under-test VM and the reference VM
+            - OVS-DPDK backing driver restarted and driver is operational
+
+        Steps:
+            1. Live-migrate the under-test VM and wait for migration completion
+            2. Verify TCP connectivity is preserved from the under-test VM to the reference VM
+
+        Expected:
+            - TCP connectivity to the reference VM is preserved
+        """
