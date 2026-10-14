@@ -91,3 +91,29 @@ class TestConnectivityAfterDpdkBackingDriverRestart:
         Expected:
             - TCP connectivity to the reference VM is preserved
         """
+
+
+@pytest.mark.manual
+def test_connectivity_is_preserved_after_guest_reboot():
+    """
+    Test that TCP connectivity from the under-test VM to the reference VM is preserved
+    after the under-test VM guest is rebooted, for the parametrized IP family.
+
+    STP:https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/blob/main/stps/sig-network/ovs-dpdk-tp-stp.md
+
+    Parametrize:
+        - ip_family:
+            - ipv4 [Markers: ipv4]
+            - ipv6 [Markers: ipv6]
+
+    Preconditions:
+        - Running under-test VM with a ResourceClaim-backed OVS-DPDK network device
+        - Running reference VM with a ResourceClaimTemplate-backed OVS-DPDK network device
+
+    Steps:
+        1. Reboot the under-test VM guest and wait until the guest is running and reachable
+        2. Verify TCP connectivity from the under-test VM to the reference VM
+
+    Expected:
+        - TCP connectivity to the reference VM is preserved
+    """
